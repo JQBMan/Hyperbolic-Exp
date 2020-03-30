@@ -6,13 +6,6 @@ import pynvml
 import numpy as np
 import random
 import os
-#################################
-# get_Model_Parameters function
-#################################
-def printModelParameters(model):
-    for name, param in model.named_parameters():
-        if name in ['c_in', 'c_out']:
-            print(name, '  ', param.size(), '  ', param)
 
 #####################
 # get_graph function
