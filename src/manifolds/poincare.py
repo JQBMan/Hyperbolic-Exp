@@ -1,23 +1,18 @@
 """Poincare ball manifold."""
 
 import torch
-from manifolds.base import Manifold
 from utils.math_utils import artanh, tanh
 
-class PoincareBall(Manifold):
+class PoincareBall(object):
     """
     PoicareBall Manifold class.
-
     We use the following convention: x0^2 + x1^2 + ... + xd^2 < 1 / c
-
     Note that 1/sqrt(c) is the Poincare ball radius.
-
     """
-
     def __init__(self, ):
         super(PoincareBall, self).__init__()
         self.name = 'PoincareBall'
-        self.min_norm = 1e-15
+        self.min_norm = 1e-5
         self.eps = {torch.float32: 4e-3, torch.float64: 1e-5}
 
     def sqdist(self, p1, p2, c):
@@ -93,7 +88,11 @@ class PoincareBall(Manifold):
         x_norm = x.norm(dim=-1, keepdim=True, p=2).clamp_min(self.min_norm)
         mx = x @ m.transpose(-1, -2)
         mx_norm = mx.norm(dim=-1, keepdim=True, p=2).clamp_min(self.min_norm)
-        res_c = tanh(mx_norm / x_norm * artanh(sqrt_c * x_norm)) * mx / (mx_norm * sqrt_c)
+        artanh_res_c = artanh(sqrt_c * x_norm)
+        tanh_res_c_0 = mx_norm / x_norm * artanh_res_c
+        tanh_res_c = tanh(tanh_res_c_0)
+        sqrt_res_c = mx / (mx_norm * sqrt_c)
+        res_c = tanh_res_c * sqrt_res_c
         cond = (mx == 0).prod(-1, keepdim=True, dtype=torch.uint8)
         res_0 = torch.zeros(1, dtype=res_c.dtype, device=res_c.device)
         res = torch.where(cond, res_0, res_c)
@@ -115,29 +114,13 @@ class PoincareBall(Manifold):
         d = 1 + 2 * c * uv + c2 * u2 * v2
         return w + 2 * (a * u + b * v) / d.clamp_min(self.min_norm)
 
-    def inner(self, x, c, u, v=None, keepdim=False):
+    def inner(self, x, c, u, v=None, keepdim=False, dim=-1):
         if v is None:
             v = u
         lambda_x = self._lambda_x(x, c)
-        return lambda_x ** 2 * (u * v).sum(dim=-1, keepdim=keepdim)
+        return lambda_x ** 2 * (u * v).sum(dim=dim, keepdim=keepdim)
 
     def ptransp(self, x, y, u, c):
         lambda_x = self._lambda_x(x, c)
         lambda_y = self._lambda_x(y, c)
         return self._gyration(y, -x, u, c) * lambda_x / lambda_y
-
-    def ptransp_(self, x, y, u, c):
-        lambda_x = self._lambda_x(x, c)
-        lambda_y = self._lambda_x(y, c)
-        return self._gyration(y, -x, u, c) * lambda_x / lambda_y
-
-    def ptransp0(self, x, u, c):
-        lambda_x = self._lambda_x(x, c)
-        return 2 * u / lambda_x.clamp_min(self.min_norm)
-
-    def to_hyperboloid(self, x, c):
-        K = 1./ c
-        sqrtK = K ** 0.5
-        sqnorm = torch.norm(x, p=2, dim=1, keepdim=True) ** 2
-        return sqrtK * torch.cat([K + sqnorm, 2 * sqrtK * x], dim=1) / (K - sqnorm)
-

@@ -1,8 +1,8 @@
 '''Hyperbolic Graph Convolution Neural Network, geometric '''
 import torch
+import torch.nn as nn
 import torch.nn.init as init
 from torch_scatter import scatter_add
-from torch.nn.parameter import Parameter
 from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.utils import add_remaining_self_loops
 
@@ -20,14 +20,14 @@ class HGCNConv_geometric(MessagePassing):
         self.cached = cached
         self.normalize = normalize
         self.act = act
-        self.c_in = torch.nn.Parameter(torch.tensor(c_in))
-        self.c_out = torch.nn.Parameter(torch.tensor(c_out))
+        self.c_in = c_in
+        self.c_out = c_out
         self.dropout = dropout
 
         #self.weight = Parameter(torch.Tensor(in_channels, out_channels))
 
         if bias:
-            self.bias = Parameter(torch.Tensor(out_channels))
+            self.bias = nn.Parameter(torch.Tensor(out_channels))
         else:
             self.register_parameter('bias', None)
 
@@ -113,7 +113,6 @@ class HGCNConv_geometric(MessagePassing):
             aggr_out = self.manifold.proj(aggr_out, self.c_in)
         return aggr_out
 
-def __repr__(self):
-    return '{}({}, {})'.format(self.__class__.__name__, self.in_channels,
-                               self.out_channels)
-
+    def __repr__(self):
+        return '{}({}, {})'.format(self.__class__.__name__, self.in_channels,
+                                   self.out_channels)

@@ -1,10 +1,11 @@
-a'''Hyperbolic Activation Layer'''
-from torch.nn.modules.module import Module
+'''Hyperbolic Activation Layer'''
+import torch.nn as nn
 
-class HypAct(Module):
+class HypAct(nn.Module):
     """
     Hyperbolic activation layer.
     """
+
     def __init__(self, manifold, c_in, c_out, act):
         super(HypAct, self).__init__()
         self.manifold = manifold
@@ -13,13 +14,11 @@ class HypAct(Module):
         self.act = act
 
     def forward(self, x):
-        xt = self.manifold.logmap0(x, c=self.c_in)
-        xt = self.act(xt)
+        xt = self.act(self.manifold.logmap0(x, c=self.c_in))
         xt = self.manifold.proj_tan0(xt, c=self.c_out)
         return self.manifold.proj(self.manifold.expmap0(xt, c=self.c_out), c=self.c_out)
 
     def extra_repr(self):
         return 'c_in={}, c_out={}'.format(
-                self.c_in, self.c_out
+            self.c_in, self.c_out
         )
-

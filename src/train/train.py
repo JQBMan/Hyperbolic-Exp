@@ -9,8 +9,11 @@ from tqdm import tqdm
 from eval.ctr_eval import ctr_eval
 from eval.eval_utils import topk_settings
 from train.choice_model import choice_model
-from train.model import *
+# from train.Model import Model
 from train.train_utils import *
+
+from hyper_layers.hyper_utils import printModelParameters
+
 from utils import *
 
 ########################
@@ -35,17 +38,17 @@ def train(args, number):
     train_loader, test_loader, valid_loader = data_loader(args.dataset, args.batch_size, number)
     # param
     u_nodes, i_nodes = number[args.dataset]['users'], number[args.dataset]['entities']
-    # choice the model
-    model = choice_model(args, u_nodes, i_nodes, device)
-    logging.info(model)
     # top-K evaluation settings
-    user_list, train_record, test_record, item_set, k_list = topk_settings(train_loader, test_loader, number[args.dataset]['items'])
-    # optimizer
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.l2_weight_decay)
-    # criterion
-    # criterion = nn.BCEWithLogitsLoss()
+    user_list, train_record, test_record, item_set, k_list = topk_settings(train_loader, test_loader)
+
+    # choice the model and optimizer
+    model, optimizer = choice_model(args, u_nodes, i_nodes, device)
+    # model = Model(number, args)
+    logging.info(model)
+    # optimizer = model.optimizer
+    logging.info(optimizer)
+    # criterion = model.loss
     criterion = nn.BCELoss()
-    # criterion = nn.CrossEntropyLoss
 
     # epoch
     start_total_time = time.time()
@@ -55,20 +58,21 @@ def train(args, number):
         running_train_loss = 0
         train_losses = []
         valid_losses = []
+        test_losses = []
         maximum_auc_topk = []
         for k, [user, item_hot, label, _] in enumerate(train_loader):
             u, i, l = user.to(device), item_hot.to(device), label.to(device)
-            # print(u, u.size())    # print(i, i.size())
+
             optimizer.zero_grad()
             out = model(u, i, graph).double()
-            # logging.info('train.epoch.out:' + str(out) + '\n\n')
-            # print('model.out:/n', out, out.size())
             loss = criterion(out, l)
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 1)
             optimizer.step()
-            if args.model in ['hgcn', 'hgat', 'hnn']:
-                torch.nn.utils.clip_grad_norm_(model.parameters(), 1)
+
             running_train_loss += loss.item()
+            train_losses.append(loss.item())
+
             if k % 50 == 49:
                 # compute the gpu usage and report in the logging
                 if args.cuda:
@@ -78,18 +82,28 @@ def train(args, number):
                         usage_str = f'GPU Error: [{e}] Used CPU'
                 else:
                     usage_str = 'CPU'
-                # valid
+
+                # valid loss
                 for user, item_hot, label, _ in valid_loader:
                     u, i, l = user.to(device), item_hot.to(device), label.to(device)
                     out = model(u, i, graph).double()
                     loss = criterion(out, l)
                     valid_losses.append(loss.item())
-                train_losses.append(running_train_loss / 50)
+
+                # test loss
+                for user, item_hot, label, _ in test_loader:
+                    u, i, l = user.to(device), item_hot.to(device), label.to(device)
+                    out = model(u, i, graph).double()
+                    loss = criterion(out, l)
+                    test_losses.append(loss.item())
+
                 logging.info(f'[{args.dataset}:{args.model}{args.dim}]Epoch:{epoch + 1} Step:{k + 1} '
-                             f'train loss:{running_train_loss / 50:.5f} valid loss:{np.average(valid_losses):.5f} | {usage_str}')
+                             f'train loss:{running_train_loss / 50:.5f} valid loss:{np.average(valid_losses):.5f} '
+                             f'test loss:{np.average(test_losses):.5f}| {usage_str}')
                 running_train_loss = 0
+
         ## early stop and save model
-        early_stop_loss = np.average(train_losses)
+        early_stop_loss = (np.mean(train_losses)+np.average(valid_losses))/2
         # early_stop_loss = np.average(valid_losses)
         early_stopping(early_stop_loss, model)
         if early_stopping.early_stop:
@@ -164,6 +178,7 @@ def load_and_eval(args, number):
     logging.info(f'AUC={auc:.4f} Recall={recall:.4f} F-1={f1:.4f}')
     topk(args, device, model, graph, user_list, train_record, test_record, item_set, i_nodes, k_list, auc)
 
+    printModelParameters(model)
 ########################
 # main function
 ########################
@@ -182,3 +197,5 @@ def main(args):
     else:
         logging.ERROR('No such mode. There are two modes:--mode ["train" or "load"]')
         return
+
+

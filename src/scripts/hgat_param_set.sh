@@ -6,10 +6,10 @@ do
   for lr_weight_decay in $(<./params/params_lr_weight_decay.txt)
   do
     task_i=`expr $task_i + 1`
-    if [ $task_i -lt 24 ]
-    then
-      continue
-    fi
+#    if [ $task_i -lt 24 ]
+#    then
+#      continue
+#    fi
     lr=`echo $lr_weight_decay | cut -d \, -f 1`
     l2_weight_decay=`echo $lr_weight_decay | cut -d \, -f 2`
     echo '>>>Task:'$task_i 'dim='$dim 'lr='$lr 'l2_weight_decay='$l2_weight_decay

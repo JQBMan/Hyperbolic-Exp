@@ -6,7 +6,7 @@ import numpy as np
 ########################
 # topk_setting
 ########################
-def topk_settings(train_loader, test_loader, n_item):
+def topk_settings(train_loader, test_loader):
     user_num = 100
     k_list = [1, 2, 5, 10, 20, 50, 100]
 

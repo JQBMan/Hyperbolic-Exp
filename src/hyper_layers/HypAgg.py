@@ -1,8 +1,8 @@
 '''Hyperbolic Aggregation layer'''
 import torch
-from torch.nn.modules.module import Module
+import torch.nn as nn
 
-class HypAgg(Module):
+class HypAgg(nn.Module):
     """
     Hyperbolic aggregation layer.
     """

@@ -1,8 +1,8 @@
 '''Hyperbolic Graph Attentional Network'''
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 import torch.nn.init as init
-from torch.nn.parameter import Parameter
 from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.utils import remove_self_loops, add_self_loops, softmax
 
@@ -61,18 +61,18 @@ class HGATConv_gemoetric(MessagePassing):
         self.concat = concat
         self.act = act
         self.negative_slope = negative_slope
-        self.c_in = torch.nn.Parameter(torch.tensor(c_in))
-        self.c_out = torch.nn.Parameter(torch.tensor(c_out))
+        self.c_in = c_in
+        self.c_out = c_out
         self.dropout = dropout
 
         #self.weight = Parameter(
         #    torch.Tensor(in_channels, heads * out_channels))
-        self.att = Parameter(torch.Tensor(1, heads, 2 * out_channels))
+        self.att = nn.Parameter(torch.Tensor(1, heads, 2 * out_channels))
 
         if bias and concat:
-            self.bias = Parameter(torch.Tensor(heads * out_channels))
+            self.bias = nn.Parameter(torch.Tensor(heads * out_channels))
         elif bias and not concat:
-            self.bias = Parameter(torch.Tensor(out_channels))
+            self.bias = nn.Parameter(torch.Tensor(out_channels))
         else:
             self.register_parameter('bias', None)
         self.linear = HypLinear(manifold, in_channels, out_channels, c_in, dropout, bias)

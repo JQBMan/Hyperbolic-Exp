@@ -38,3 +38,8 @@ class HypLinear(nn.Module):
             res = self.manifold.mobius_add(res, hyp_bias, c=self.c)
             res = self.manifold.proj(res, self.c)
         return res
+
+    def extra_repr(self):
+        return 'in_features={}, out_features={}, c={}'.format(
+            self.in_features, self.out_features, self.c
+        )

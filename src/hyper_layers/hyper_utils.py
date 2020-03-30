@@ -1,4 +1,6 @@
 '''Hyerbolic Utils'''
+import logging
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -38,6 +40,7 @@ def get_dim_act_curv(args):
 # get_Model_Parameters function
 #################################
 def printModelParameters(model):
+    logging.info('printModelParameters:')
     for name, param in model.named_parameters():
         if name in ['c_in', 'c_out']:
-            print(name, '  ', param.size(), '  ', param)
+            logging.info(name, '  ', param.size(), '  ', param)
