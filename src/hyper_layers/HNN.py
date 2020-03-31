@@ -7,10 +7,11 @@ import torch.nn.functional as F
 
 # from hyper_layers.HypAct import HypAct
 # from hyper_layers.HypLinear import HypLinear
-class HNNLayer(nn.Module):
+class HNN(nn.Module):
     def __init__(self, manifold, in_features, out_features, c, dropout=0, act=F.relu, use_bias=False):
-        super(HNNLayer, self).__init__()
+        super(HNN, self).__init__()
         self.manifold = manifold
+        # self.c = nn.Parameter(torch.Tensor([c]))
         self.c = c
         self.in_channels = in_features
         self.out_channels = out_features

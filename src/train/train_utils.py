@@ -5,11 +5,14 @@ import logging
 import torch
 from eval.topk_eval import topk_eval
 from utils import draw_each_mode
+import os
 
 ########################
 # save model
 ########################
 def save_model(args, model, auc):
+    if not os.path.exists('../model'):
+        os.mkdir('../model')
     if auc:
         model_params_file = f'../model/{args.dataset}_{args.model}_dim{args.dim}_lr.{args.lr}_weight_decay.{args.l2_weight_decay}_params_best_auc.pkl'
         torch.save(model.state_dict(), model_params_file)  # torch.save(model, '../model/gcn_' + DATASET + '.model')

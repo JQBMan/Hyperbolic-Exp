@@ -1,4 +1,4 @@
-from hyper_layers.HNNLayer import HNNLayer
+from hyper_layers.HNN import HNN
 from hyper_layers.HypAct import HypAct
 from hyper_layers.HypAgg import HypAgg
 from hyper_layers.HyperbolicGraphConvolution import HyperbolicGraphConvolution

@@ -10,7 +10,7 @@ from hyper_layers import HypLinear, HypAct
 class FermiDiracDecoder(nn.Module):
     """Fermi Dirac to compute edge probabilities based on distances."""
 
-    def __init__(self, manifold, c_in, c_out, input_dim, dropout=0.5, bias=True, act=torch.sigmoid, r=2., t=1.):
+    def __init__(self, manifold, c_in, c_out, input_dim, dropout=0.0, bias=True, act=torch.sigmoid, r=2., t=1.):
         super(FermiDiracDecoder, self).__init__()
         self.r = r
         self.t = t

@@ -8,7 +8,7 @@ from torch_geometric.utils import remove_self_loops, add_self_loops, softmax
 
 from hyper_layers import HypLinear, HypAct
 
-class HGATConv_gemoetric(MessagePassing):
+class HGAT(MessagePassing):
     r"""The graph attentional operator from the `"Graph Attention Networks"
     <https://arxiv.org/abs/1710.10903>`_ paper
 
@@ -52,7 +52,7 @@ class HGATConv_gemoetric(MessagePassing):
     #             negative_slope=0.2, dropout=0, bias=True, **kwargs):
     def __init__(self, manifold, in_channels, out_channels, act, heads=1, concat=True,
                  negative_slope=0.2, c_in=1.0, c_out=1.0, dropout=0, bias=True, **kwargs):
-        super(HGATConv_gemoetric, self).__init__(aggr='add', **kwargs)
+        super(HGAT, self).__init__(aggr='add', **kwargs)
 
         self.manifold = manifold
         self.in_channels = in_channels

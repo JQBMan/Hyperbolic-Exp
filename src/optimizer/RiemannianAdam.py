@@ -4,6 +4,21 @@ from torch.nn import Parameter
 
 from manifolds.poincare import PoincareBall
 
+
+class OptimMixin(object):
+    def __init__(self, *args, stabilize=None, **kwargs):
+        self._stabilize = stabilize
+        super().__init__(*args, **kwargs)
+
+    def stabilize_group(self, group):
+        pass
+
+    def stabilize(self):
+        """Stabilize parameters if they are off-manifold due to numerical reasons
+        """
+        for group in self.param_groups:
+            self.stabilize_group(group)
+
 def copy_or_set_(dest, source):
     """
     A workaround to respect strides of :code:`dest` when copying :code:`source`
@@ -23,20 +38,6 @@ def copy_or_set_(dest, source):
         return dest.copy_(source)
     else:
         return dest.set_(source)
-
-class OptimMixin(object):
-    def __init__(self, *args, stabilize=None, **kwargs):
-        self._stabilize = stabilize
-        super().__init__(*args, **kwargs)
-
-    def stabilize_group(self, group):
-        pass
-
-    def stabilize(self):
-        """Stabilize parameters if they are off-manifold due to numerical reasons
-        """
-        for group in self.param_groups:
-            self.stabilize_group(group)
 
 class ManifoldParameter(Parameter):
     """
@@ -107,6 +108,7 @@ class RiemannianAdam(OptimMixin, torch.optim.Adam):
                     grad = point.grad
                     if grad is None:
                         continue
+                    # 防止出现inf
                     if isinstance(point, (ManifoldParameter)):
                         manifold = point.manifold
                         c = point.c

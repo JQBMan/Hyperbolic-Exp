@@ -1,5 +1,7 @@
+
 # $1 lr 5e-4     0.0005, 0.1 0.001 0.0001 0.00001
 # dim=16
+
 task_i=0
 for dim in $(<./params/params_dim.txt)
 do

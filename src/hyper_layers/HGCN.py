@@ -8,10 +8,12 @@ from torch_geometric.utils import add_remaining_self_loops
 
 from hyper_layers import HypLinear, HypAct
 
-class HGCNConv_geometric(MessagePassing):
+
+
+class HGCN(MessagePassing):
     def __init__(self, manifold, in_channels, out_channels, act, improved=True, cached=False,
                  bias=True, normalize=True, c_in=1.0, c_out=1.0, dropout=0, **kwargs):
-        super(HGCNConv_geometric, self).__init__(aggr='add', **kwargs)
+        super(HGCN, self).__init__(aggr='add', **kwargs)
 
         self.manifold = manifold
         self.in_channels = in_channels
