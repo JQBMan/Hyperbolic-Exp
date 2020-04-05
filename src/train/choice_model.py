@@ -12,6 +12,8 @@ from optimizer.RiemannianAdam import RiemannianAdam
 
 
 def choice_model(args, u_nodes, i_nodes, device):
+
+
     # choice the model
     # GNN
     if args.model == 'gcn':
@@ -31,17 +33,17 @@ def choice_model(args, u_nodes, i_nodes, device):
     # HGNN
     elif args.model == 'hgcn':
         model = HGCNModel(args.dim, args.hidden1, args.hidden2, u_nodes, i_nodes,
-                          c_in=args.c_in, c_out=args.c_out, dropout=args.dropout).to(device)
+                          c_in=args.c_in, c_out=args.c_out, dropout=args.dropout, device=device).to(device)
         optimizer = RiemannianAdam(model.parameters(), lr=args.lr, weight_decay=args.l2_weight_decay)
 
     elif args.model == 'hgat':
         model = HGATModel(args.dim, args.hidden1, args.hidden2, u_nodes, i_nodes,
-                          c_in=args.c_in, c_out=args.c_out, dropout=args.dropout, heads=args.heads).to(device)
+                          c_in=args.c_in, c_out=args.c_out, dropout=args.dropout, heads=args.heads, device=device).to(device)
         optimizer = RiemannianAdam(model.parameters(), lr=args.lr, weight_decay=args.l2_weight_decay)
 
     # NN
     elif args.model == 'hnn':
-        model = HNNModel(args.dim, args.hidden1, args.hidden2, u_nodes, i_nodes, c=args.c_in, dropout=args.dropout).to(device)
+        model = HNNModel(args.dim, args.hidden1, args.hidden2, u_nodes, i_nodes, c=args.c_in, dropout=args.dropout, device=device).to(device)
         optimizer = RiemannianAdam(model.parameters(), lr=args.lr, weight_decay=args.l2_weight_decay)
 
     elif args.model == 'mlp':

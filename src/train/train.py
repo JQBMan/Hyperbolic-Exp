@@ -67,7 +67,7 @@ def train(args, number):
             out = model(u, i, graph).double()
             loss = criterion(out, l)
             loss.backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), 1)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 0.5)
             optimizer.step()
 
             running_train_loss += loss.item()

@@ -2,7 +2,8 @@ import torch
 import torch.optim
 from torch.nn import Parameter
 
-from manifolds.poincare import PoincareBall
+from manifolds.euclidean import Euclidean
+
 
 
 class OptimMixin(object):
@@ -113,7 +114,7 @@ class RiemannianAdam(OptimMixin, torch.optim.Adam):
                         manifold = point.manifold
                         c = point.c
                     else:
-                        manifold = PoincareBall()
+                        manifold = Euclidean()
                         c = None
                     if grad.is_sparse:
                         raise RuntimeError(

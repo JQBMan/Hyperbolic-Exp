@@ -15,6 +15,6 @@ do
     lr=`echo $lr_weight_decay | cut -d \, -f 1`
     l2_weight_decay=`echo $lr_weight_decay | cut -d \, -f 2`
     echo '>>>Task:'$task_i 'dim='$dim 'lr='$lr 'l2_weight_decay='$l2_weight_decay
-    python3 main.py --dataset music -m hgat --dim $dim --hidden1 64 --hidden2 32  --batch_size 64 --l2_weight_decay $l2_weight_decay --lr $lr --mode train
+    python3 main.py --dataset music -m hgcn --dim $dim --hidden1 64 --hidden2 32  --batch_size 256 --l2_weight_decay $l2_weight_decay --lr $lr --mode train
   done
 done

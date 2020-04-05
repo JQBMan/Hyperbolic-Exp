@@ -2,6 +2,7 @@ import logging
 
 import numpy as np
 import torch
+import os
 
 class EarlyStoppingCriterion:
     """Early stops the training if validation loss doesn't improve after a given patience."""
@@ -15,6 +16,8 @@ class EarlyStoppingCriterion:
             delta (float): Minimum change in the monitored quantity to qualify as an improvement.
                             Default: 0
         """
+        if not os.path.exists('../model'):
+            os.mkdir('../model')
         self.patience = patience
         self.verbose = verbose
         self.counter = 0

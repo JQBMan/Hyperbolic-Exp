@@ -9,6 +9,7 @@ from hyper_layers.FermiDiracDecoder import FermiDiracDecoder
 from hyper_layers.HGAT import HGAT
 from hyper_layers.HGCN import HGCN
 from manifolds.poincare import *
+from optimizer.RiemannianAdam import ManifoldParameter
 
 # GCNModel
 class GCNModel(nn.Module):
@@ -119,18 +120,19 @@ class EmbeddingModel(nn.Module):
 
 # HGCNModel
 class HGCNModel(nn.Module):
-    def __init__(self, dim, hidden_1, hidden_2, u_nodes, i_nodes, c_in=1.0, c_out=1.0, act=torch.relu, dropout=0):
+    def __init__(self, dim, hidden_1, hidden_2, u_nodes, i_nodes, c_in=1.0, c_out=1.0, act=torch.relu, dropout=0, device='cpu'):
         super(HGCNModel, self).__init__()
         self.dim = dim
         self.hidden_1, self.hidden_2 = hidden_1, hidden_2
         self.i_nodes, self.u_nodes = i_nodes, u_nodes
-        # self.c_in = c_in
-        # self.c_out = c_out
-        self.c_in = nn.Parameter(torch.Tensor([c_in]))
-        self.c_out = nn.Parameter(torch.Tensor([c_out]))
-        self.dropout = dropout
         # manifold
         self.manifold = PoincareBall()
+        # self.c_in = c_in
+        # self.c_out = c_out
+        self.c_in = ManifoldParameter(torch.Tensor([c_in]), requires_grad=True, manifold=self.manifold, c=torch.Tensor([c_in])).to(device)
+        self.c_out = ManifoldParameter(torch.Tensor([c_out]), requires_grad=True, manifold=self.manifold, c=torch.Tensor([c_out])).to(device)
+        self.dropout = dropout
+
 
         self.user_embedding = nn.Embedding(self.u_nodes, self.dim)
         self.item_embedding = nn.Embedding(self.i_nodes, self.hidden_1)
@@ -163,7 +165,7 @@ class HGCNModel(nn.Module):
         return out
 
 class HGATModel(nn.Module):
-    def __init__(self, dim, hidden_1, hidden_2, u_nodes, i_nodes, c_in=1.0, c_out=1.0, act=torch.relu, dropout=0, heads=1):
+    def __init__(self, dim, hidden_1, hidden_2, u_nodes, i_nodes, c_in=1.0, c_out=1.0, act=torch.relu, dropout=0, heads=1, device='cpu'):
         super(HGATModel, self).__init__()
         self.dim = dim
         self.heads = heads
@@ -171,8 +173,10 @@ class HGATModel(nn.Module):
         self.i_nodes, self.u_nodes = i_nodes, u_nodes
         # self.c_in = c_in
         # self.c_out = c_out
-        self.c_in = nn.Parameter(torch.Tensor([c_in]))
-        self.c_out = nn.Parameter(torch.Tensor([c_out]))
+        self.c_in = ManifoldParameter(torch.Tensor([c_in]), requires_grad=True, manifold=self.manifold,
+                                      c=torch.Tensor([c_in])).to(device)
+        self.c_out = ManifoldParameter(torch.Tensor([c_out]), requires_grad=True, manifold=self.manifold,
+                                       c=torch.Tensor([c_out])).to(device)
 
         self.dropout = dropout
         # manifold
@@ -199,25 +203,24 @@ class HGATModel(nn.Module):
 
 # # HNN Model
 class HNNModel(nn.Module):
-    def __init__(self, dim, hidden_1, hidden_2, u_nodes, i_nodes,  c=1.0, dropout=0., act=torch.relu):
+    def __init__(self, dim, hidden_1, hidden_2, u_nodes, i_nodes,  c=1.0, dropout=0., device='cpu'):
         super(HNNModel, self).__init__()
         self.dim = dim
         self.hidden_1, self.hidden_2 = hidden_1, hidden_2
         self.i_nodes, self.u_nodes = i_nodes, u_nodes
         # self.c = c
-        self.c = nn.Parameter(torch.Tensor([c]))
+        self.c = ManifoldParameter(torch.Tensor([c]), requires_grad=True, manifold=self.manifold,
+                                      c=torch.Tensor([c])).to(device)
 
         self.dropout = dropout
-        self.act = act
         self.manifold = PoincareBall()
 
         # self.c_out = c_out
         self.user_embedding = nn.Embedding(self.u_nodes, self.dim)
         self.item_embedding = nn.Embedding(self.i_nodes, self.hidden_1)
-        self.conv1 = HNN(self.manifold, self.hidden_1, self.hidden_2, c=self.c, dropout=self.dropout, act=self.act, use_bias=True)
-        self.conv2 = HNN(self.manifold, self.hidden_2, self.dim, c=self.c, dropout=self.dropout, act=self.act, use_bias=True)
-        # self.fc1 = nn.Linear(self.dim+self.dim, 1)
-        self.fc1 = FermiDiracDecoder(self.manifold, self.c_in, self.c_out, self.dim * 2)
+        self.conv1 = HNN(self.manifold, self.hidden_1, self.hidden_2, c=self.c, dropout=self.dropout, use_bias=True)
+        self.conv2 = HNN(self.manifold, self.hidden_2, self.dim, c=self.c, dropout=self.dropout, use_bias=True)
+        self.fc1 = nn.Linear(self.dim+self.dim, 1)
         # self.fc2 = nn.Linear(8, 1)
 
     def encoder(self, x):
@@ -234,7 +237,7 @@ class HNNModel(nn.Module):
         u_i = torch.cat((u_embedding, i_embedding), 1)
         out = self.fc1(u_i)
         # out = self.fc2(out)
-        # out = torch.sigmoid(out)
+        out = torch.sigmoid(out)
         return out
 
 

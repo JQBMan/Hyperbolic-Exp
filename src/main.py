@@ -14,7 +14,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--dataset', type=str, default='music',
                         help='which dataset to train(dataset: book, movie1m, music, restaurant, movie20m)')
-    parser.add_argument('-b', '--batch_size', type=int, default=32, help='set the batch size of training')
+    parser.add_argument('-b', '--batch_size', type=int, default=64, help='set the batch size of training')
     parser.add_argument('-m', '--model', type=str, default='gat',help='which module to choice(module: gcn, hgcn...)')
     parser.add_argument('-D', '--dim', type=int, default=16, help='embedding dimension')
     parser.add_argument('-h1', '--hidden1', type=int, default=64, help='the hidden_1 is u_hidden_size')
@@ -23,9 +23,9 @@ if __name__ == '__main__':
     parser.add_argument('-C', '--cat', type=int, default=1, help="Is Inner product(0) or Concatenation(1)？")
 
     parser.add_argument('-ci', '--c_in', type=float, default=1., help='the curvature in for hnn(c) and hgcn')
-    parser.add_argument('-co', '--c_out', type=float, default=1.0, help='the curvature out for hgcn')
+    parser.add_argument('-co', '--c_out', type=float, default=1., help='the curvature out for hgcn')
     parser.add_argument('-do', '--dropout', type=float, default=0., help='the dropout for hyperbolic param')
-    parser.add_argument('-E', '--epochs', type=int, default=300, help='the epochs of the training')
+    parser.add_argument('-E', '--epochs', type=int, default=2000, help='the epochs of the training')
     parser.add_argument('-l', '--lr', type=float, default=1e-4, help='learning rate') # 1e-4
     parser.add_argument('-w', '--l2_weight_decay', type=float, default=2e-4, help='l2_weight_decay')
     parser.add_argument('-e', '--early_stop_patience', type=int, default=10, help='the parameter for stopping early')
