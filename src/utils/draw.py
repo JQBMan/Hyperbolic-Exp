@@ -93,17 +93,17 @@ def add_color_each_mode(ax, dataset, data, auc, K=k):
         ax.plot(K, data[i], label=labels[i], marker=marks[i])
     ax.legend(prop={'size': 15})
 
-def draw_each_mode(dataset, model_name, data_list, auc, save_path, is_maxauc, is_show=False):
+def draw_each_mode(args, data_list, auc, save_path, is_maxauc, is_show=False):
     plt.style.use('ggplot')
     fig, axs = plt.subplots(1, 1, figsize=(15, 15))
     plt.subplots_adjust(left=0.07, bottom=0.1, right=.93, top=.9, wspace=0.22)
-    add_color_each_mode(axs, dataset=dataset, data=data_list, auc=auc)
+    add_color_each_mode(axs, dataset=args.dataset, data=data_list, auc=auc)
     if is_maxauc:
-        plt.savefig(save_path + f'{dataset}_{model_name}_eval_figure.best_auc.png',format='png')
-        logging.info(f'save figure to save_path {dataset}_{model_name}_eval_figure.best_auc.png')
+        plt.savefig(save_path + f'{args.dataset}_{args.model}_lr{args.lr}_weight_decay{args.l2_weight_decay}_eval_figure.best_auc.png',format='png')
+        logging.info(f'save figure to save_path {args.dataset}_{args.model}_lr{args.lr}_weight_decay{args.l2_weight_decay}_eval_figure.best_auc.png')
     else:
-        plt.savefig(save_path + f'{dataset}_{model_name}_eval_figure.eraly_stop.png',format='png')
-        logging.info(f'save figure to {save_path}/{dataset}_{model_name}_eval_figure.eraly_stop.png')
+        plt.savefig(save_path + f'{args.dataset}_{args.model}_lr{args.lr}_weight_decay{args.l2_weight_decay}_eval_figure.eraly_stop.png',format='png')
+        logging.info(f'save figure to {save_path}/{args.dataset}_{args.model}_lr{args.lr}_weight_decay{args.l2_weight_decay}_eval_figure.eraly_stop.png')
     if is_show:
         plt.show()
 if __name__ == '__main__':
