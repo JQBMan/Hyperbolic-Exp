@@ -103,7 +103,8 @@ def train(args, number):
                 running_train_loss = 0
 
         ## early stop and save model
-        early_stop_loss = (np.mean(train_losses)+np.average(valid_losses))/2
+        # early_stop_loss = (np.mean(train_losses)+np.average(valid_losses))/2
+        early_stop_loss = np.average(test_losses)
         # early_stop_loss = np.average(valid_losses)
         early_stopping(early_stop_loss, model)
         if early_stopping.early_stop:
