@@ -173,14 +173,16 @@ class HGATModel(nn.Module):
         self.i_nodes, self.u_nodes = i_nodes, u_nodes
         # self.c_in = c_in
         # self.c_out = c_out
+        # manifold
+        self.manifold = PoincareBall()
+        
         self.c_in = ManifoldParameter(torch.Tensor([c_in]), requires_grad=True, manifold=self.manifold,
                                       c=torch.Tensor([c_in])).to(device)
         self.c_out = ManifoldParameter(torch.Tensor([c_out]), requires_grad=True, manifold=self.manifold,
                                        c=torch.Tensor([c_out])).to(device)
 
         self.dropout = dropout
-        # manifold
-        self.manifold = PoincareBall()
+
         self.user_embedding = nn.Embedding(self.u_nodes, self.dim)
         self.item_embedding = nn.Embedding(self.i_nodes, self.hidden_1)
         self.act = act
