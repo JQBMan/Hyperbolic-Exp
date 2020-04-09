@@ -15,9 +15,9 @@ class MyDataset():
     df = pd.read_csv('../data/' + dataset + '/ratings_final.txt',
                      sep='\t', header=None, index_col=None
                     ).values
-    train, over = train_test_split(df, test_size=0.4, random_state=1234)
+    train, over = train_test_split(df, test_size=0.4, random_state=5555)
 
-    test, valid = train_test_split(over, test_size=0.5, random_state=1234)
+    test, valid = train_test_split(over, test_size=0.5, random_state=5555)
     self.item_enc = OneHotEncoder().fit([[i] for i in range(number[dataset]['entities'])])
     if mode == 'train':
         self.data = train

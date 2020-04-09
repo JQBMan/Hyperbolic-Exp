@@ -26,7 +26,7 @@ def get_graph(dataset, number):
 ########################
 # set the random seed
 ########################
-def seed_everything(seed=1234):
+def seed_everything(seed=5555):
     random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)

@@ -175,7 +175,7 @@ class HGATModel(nn.Module):
         # self.c_out = c_out
         # manifold
         self.manifold = PoincareBall()
-        
+
         self.c_in = ManifoldParameter(torch.Tensor([c_in]), requires_grad=True, manifold=self.manifold,
                                       c=torch.Tensor([c_in])).to(device)
         self.c_out = ManifoldParameter(torch.Tensor([c_out]), requires_grad=True, manifold=self.manifold,

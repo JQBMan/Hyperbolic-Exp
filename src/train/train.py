@@ -39,7 +39,7 @@ def train(args, number):
     # param
     u_nodes, i_nodes = number[args.dataset]['users'], number[args.dataset]['entities']
     # top-K evaluation settings
-    user_list, train_record, test_record, item_set, k_list = topk_settings(train_loader, test_loader)
+    user_list, train_record, test_record, item_set, k_list = topk_settings(train_loader, test_loader, number[args.dataset]['items'])
 
     # choice the model and optimizer
     model, optimizer = choice_model(args, u_nodes, i_nodes, device)
@@ -104,7 +104,7 @@ def train(args, number):
 
         ## early stop and save model
         # early_stop_loss = (np.mean(train_losses)+np.average(valid_losses))/2
-        early_stop_loss = np.average(test_losses)
+        early_stop_loss = (np.mean(train_losses)+np.average(test_losses))/2
         # early_stop_loss = np.average(valid_losses)
         early_stopping(early_stop_loss, model)
         if early_stopping.early_stop:
@@ -170,7 +170,7 @@ def load_and_eval(args, number):
     # top-K evaluation settings
     user_list, train_record, test_record, item_set, k_list = topk_settings(train_loader, test_loader, number[args.dataset]['items'])
     # load model
-    model = choice_model(args,u_nodes, i_nodes, device)
+    model,_ = choice_model(args, u_nodes, i_nodes, device)
     model_params_file = f'../model/{args.dataset}_{args.model}_dim{args.dim}_lr.{args.lr}_weight_decay.{args.l2_weight_decay}_params_earlystop.pkl'
     # model_params_file = '../model/checkpoint.pt'
     model = read_model(model, model_params_file)

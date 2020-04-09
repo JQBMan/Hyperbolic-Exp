@@ -1,3 +1,5 @@
+import os
+
 import torch
 from sklearn.preprocessing import OneHotEncoder
 
@@ -6,7 +8,7 @@ import numpy as np
 ########################
 # topk_setting
 ########################
-def topk_settings(train_loader, test_loader):
+def topk_settings(train_loader, test_loader, n_item):
     user_num = 100
     k_list = [1, 2, 5, 10, 20, 50, 100]
 
@@ -15,10 +17,19 @@ def topk_settings(train_loader, test_loader):
     user_list = list(set(train_record.keys()) & set(test_record.keys()))
     if len(user_list) > user_num:
         user_list = np.random.choice(user_list, size=user_num, replace=False)
-#     item_set = set(list(range(n_item)))
-    item_set = []
-    for i in test_record.items():
-        item_set.extend(i[1])
+    item_set = set(list(range(n_item)))
+    # item_set_test = []
+    # item_set_train = []
+    # for i in test_record.items():
+    #     # print(i[1])
+    #     item_set_test.extend(i[1])
+    # for i in train_record.items():
+    #     # print(i[1])
+    #     item_set_train.extend(i[1])
+    # # print(item_set - set(item_set_test))
+    # print(item_set.difference(set(item_set_test)))
+    # print(item_set.difference(set(item_set_train)))
+    # print(item_set.difference(set(item_set_test+item_set_train)))
     # print(len(set(item_set)))
     return user_list, train_record, test_record, set(item_set), k_list
 
@@ -52,3 +63,14 @@ def get_user_record(data_loader, is_train):
                     user_history_dict[user] = set()
                 user_history_dict[user].add(item)
     return user_history_dict
+
+# from utils.mydataset import data_loader
+# if __name__ == '__main__':
+#
+#     os.chdir('../')
+#     DATASET = 'music'
+#     batch_size = 64
+#     number = {'music': {'users': 1872, 'items': 3846, 'interaction': 42346, 'entities': 9366, 'relations': 60,
+#                         'kg_triples': 15518, 'hyperbolicity': 0}}
+#     train_data, test_data, valid_data = data_loader(DATASET, batch_size, number)
+#     topk_settings(train_data, test_data,  number[DATASET]['items'])
